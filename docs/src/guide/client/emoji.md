@@ -125,6 +125,12 @@ Waline 提供了一系列开箱即用的表情预设。你可以直接将它们�
   https://unpkg.com/@waline/emojis@1.1.0/weibo
   ```
 
+- B站小黄脸
+
+  ```http
+  https://unpkg.com/@waline/emojis@1.1.0/bmoji
+  ```
+
 ::: warning
 
 Waline 不含有上述 Emoji 表情的任何版权，你需要自行承担使用风险。
