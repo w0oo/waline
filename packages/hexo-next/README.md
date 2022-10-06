@@ -45,14 +45,14 @@ waline:
 
   # Custom emoji
   # emoji:
-  #   - https://unpkg.com/@waline/emojis@1.0.1/weibo
-  #   - https://unpkg.com/@waline/emojis@1.0.1/alus
-  #   - https://unpkg.com/@waline/emojis@1.0.1/bilibili
-  #   - https://unpkg.com/@waline/emojis@1.0.1/qq
-  #   - https://unpkg.com/@waline/emojis@1.0.1/tieba
-  #   - https://unpkg.com/@waline/emojis@1.0.1/tw-emoji
+  #   - https://unpkg.com/@waline/emojis@1.1.0/weibo
+  #   - https://unpkg.com/@waline/emojis@1.1.0/alus
+  #   - https://unpkg.com/@waline/emojis@1.1.0/bilibili
+  #   - https://unpkg.com/@waline/emojis@1.1.0/qq
+  #   - https://unpkg.com/@waline/emojis@1.1.0/tieba
+  #   - https://unpkg.com/@waline/emojis@1.1.0/tw-emoji
 
-  # Comment infomation, valid meta are nick, mail and link
+  # Comment information, valid meta are nick, mail and link
   # meta:
   #   - nick
   #   - mail

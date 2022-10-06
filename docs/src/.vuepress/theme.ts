@@ -34,13 +34,17 @@ export default hopeTheme({
     },
   },
 
+  iconAssets: '//at.alicdn.com/t/c/font_3180165_zmwravx0fq.css',
+
   plugins: {
     blog: false,
 
     comment: {
       provider: 'Waline',
       serverURL: 'https://walinejs.comment.lithub.cc',
+      recaptchaV3Key: '6Lfz4-shAAAAANgsYRR0datkzv6zLIaKrSqfHsiG',
       pageview: true,
+      reaction: true,
       walineLocales: {
         '/': {
           admin: '可爱的管理员',
@@ -65,10 +69,10 @@ export default hopeTheme({
 
     mdEnhance: {
       codetabs: true,
+      katex: true,
       sub: true,
       sup: true,
       tasklist: true,
-      tex: true,
     },
 
     pwa: {

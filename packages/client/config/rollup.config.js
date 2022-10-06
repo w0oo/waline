@@ -44,7 +44,7 @@ export default [
     input: './src/entrys/legacy.ts',
     output: [
       {
-        file: './dist/legacy.js',
+        file: './dist/legacy.umd.js',
         format: 'umd',
         name: 'Waline',
         exports: 'default',
@@ -77,10 +77,10 @@ export default [
     ],
   },
 
-  // // legacy declaration files
+  // legacy declaration files
   {
     input: './src/entrys/legacy.ts',
-    output: [{ file: './dist/legacy.d.ts', format: 'esm' }],
+    output: [{ file: './dist/legacy.umd.d.ts', format: 'esm' }],
     plugins: [dts({ compilerOptions: { preserveSymlinks: false } })],
   },
 
@@ -95,12 +95,12 @@ export default [
         plugins: [babelPlugin],
       },
       {
-        file: './dist/waline.cjs.js',
+        file: './dist/waline.cjs',
         format: 'cjs',
         sourcemap: true,
       },
       {
-        file: './dist/waline.esm.js',
+        file: './dist/waline.mjs',
         format: 'esm',
         sourcemap: true,
       },
@@ -113,8 +113,8 @@ export default [
     input: './src/entrys/full.ts',
     output: [
       { file: './dist/waline.d.ts', format: 'esm' },
-      { file: './dist/waline.cjs.d.ts', format: 'esm' },
-      { file: './dist/waline.esm.d.ts', format: 'esm' },
+      { file: './dist/waline.d.cts', format: 'esm' },
+      { file: './dist/waline.d.mts', format: 'esm' },
     ],
     plugins: [dts({ compilerOptions: { preserveSymlinks: false } })],
   },
@@ -124,26 +124,26 @@ export default [
     input: './src/entrys/full.ts',
     output: [
       {
-        file: './dist/shim.js',
+        file: './dist/shim.cjs',
         format: 'cjs',
         sourcemap: true,
       },
       {
-        file: './dist/shim.esm.js',
+        file: './dist/shim.mjs',
         format: 'esm',
         sourcemap: true,
       },
     ],
     ...commonOptions,
-    external: ['autosize', 'marked', 'vue'],
+    external: ['@vueuse/core', 'autosize', 'marked', 'vue'],
   },
 
   // shim declaration files
   {
     input: './src/entrys/full.ts',
     output: [
-      { file: './dist/shim.d.ts', format: 'esm' },
-      { file: './dist/shim.esm.d.ts', format: 'esm' },
+      { file: './dist/shim.d.cts', format: 'esm' },
+      { file: './dist/shim.d.mts', format: 'esm' },
     ],
     plugins: [dts({ compilerOptions: { preserveSymlinks: false } })],
   },
@@ -153,22 +153,81 @@ export default [
     input: './src/entrys/components.ts',
     output: [
       {
-        file: './dist/component.js',
-        format: 'cjs',
-        sourcemap: true,
-      },
-      {
-        file: './dist/component.esm.js',
+        file: './dist/component.mjs',
         format: 'esm',
         sourcemap: true,
       },
     ],
-    external: ['autosize', 'marked', 'vue'],
+    external: ['@vueuse/core', 'autosize', 'marked', 'vue'],
     ...commonOptions,
   },
 
   // components declaration files
   // TODO: Generate declaration files
+
+  // api
+  {
+    input: './src/entrys/api.ts',
+    output: [
+      {
+        file: './dist/api.cjs',
+        format: 'cjs',
+        sourcemap: true,
+      },
+      {
+        file: './dist/api.mjs',
+        format: 'esm',
+        sourcemap: true,
+      },
+    ],
+    ...commonOptions,
+  },
+
+  // api declaration files
+  {
+    input: './src/entrys/api.ts',
+    output: [
+      { file: './dist/api.d.ts', format: 'esm' },
+      { file: './dist/api.d.cts', format: 'esm' },
+      { file: './dist/api.d.mts', format: 'esm' },
+    ],
+    plugins: [dts({ compilerOptions: { preserveSymlinks: false } })],
+  },
+
+  // comment
+  {
+    input: './src/entrys/comment.ts',
+    output: [
+      {
+        file: './dist/comment.js',
+        format: 'esm',
+        sourcemap: true,
+        plugins: [babelPlugin],
+      },
+      {
+        file: './dist/comment.cjs',
+        format: 'cjs',
+        sourcemap: true,
+      },
+      {
+        file: './dist/comment.mjs',
+        format: 'esm',
+        sourcemap: true,
+      },
+    ],
+    ...commonOptions,
+  },
+
+  // comment declaration files
+  {
+    input: './src/entrys/comment.ts',
+    output: [
+      { file: './dist/comment.d.ts', format: 'esm' },
+      { file: './dist/comment.d.cts', format: 'esm' },
+      { file: './dist/comment.d.mts', format: 'esm' },
+    ],
+    plugins: [dts({ compilerOptions: { preserveSymlinks: false } })],
+  },
 
   // pageview
   {
@@ -181,12 +240,12 @@ export default [
         plugins: [babelPlugin],
       },
       {
-        file: './dist/pageview.cjs.js',
+        file: './dist/pageview.cjs',
         format: 'cjs',
         sourcemap: true,
       },
       {
-        file: './dist/pageview.esm.js',
+        file: './dist/pageview.mjs',
         format: 'esm',
         sourcemap: true,
       },
@@ -199,8 +258,8 @@ export default [
     input: './src/entrys/pageview.ts',
     output: [
       { file: './dist/pageview.d.ts', format: 'esm' },
-      { file: './dist/pageview.cjs.d.ts', format: 'esm' },
-      { file: './dist/pageview.esm.d.ts', format: 'esm' },
+      { file: './dist/pageview.d.cts', format: 'esm' },
+      { file: './dist/pageview.d.mts', format: 'esm' },
     ],
     plugins: [dts({ compilerOptions: { preserveSymlinks: false } })],
   },

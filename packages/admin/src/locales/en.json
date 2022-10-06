@@ -60,10 +60,12 @@
   "migration": "Migration",
   "exporting": "Exporting…",
   "export": "Export",
-  "importing": "Importing…",
   "import": "Import",
   "import success": "Import Success",
   "import clear data confirm": "Notice! All current data will be overwrited by importing data, do you really want to continue?",
+  "importing {{importedLength}}/{{maxLength}}": "Importing {{importedLength}}/{{maxLength}}",
+  "comment data index relationship reconstruction": "Comment data index relationship reconstruction",
+  "index updating {{importedLength}}/{{maxLength}}": "Index updating {{importedLength}}/{{maxLength}}",
   "please input avatar url": "Please input avatar URL",
   "change avatar": "Change avatar",
   "minimum 6 characters required": "Minimum 6 characters required!",
@@ -94,5 +96,6 @@
   "role": "Role",
   "exclusive label": "Exclusive Label",
   "You can't set yourself to be guest!": "You can't set yourself to be guest!",
-  "please enter an exclusive label": "Please enter an exclusive label"
+  "please enter an exclusive label": "Please enter an exclusive label",
+  "new version tips": "New version @waline/vercel@{{version}} published, please upgrade it! Goto <a href='https://waline.js.org/en/advanced/faq.html#server' target='_blank'>FAQ</a> to find How to upgrade it."
 }

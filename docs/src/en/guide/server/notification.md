@@ -3,7 +3,10 @@ title: Comment Notification
 icon: notice
 ---
 
-When a user posts a comment on the website or a user responds to a comment, Waline supports email or WeChat notification to the blogger and the author who responded to the comment. There are many types of blogger notifications, and only email notifications are supported for replying to comment authors.
+When a user posts a comment on the website or a user responds to a comment, Waline supports email or WeChat notification to the blogger and the author who responded to the comment.
+
+- We support mutiple types notifications for blogger
+- We will email a visitor once his comment gets a reply.
 
 <!-- more -->
 
@@ -24,13 +27,14 @@ Email notification needs the following environment variables to be configured:
 
 - `SMTP_USER`: SMTP Mail delivery service account, it's your email address.
 - `SMTP_PASS`: SMTP Mail delivery service password, it's your email password.
+- `SMTP_SECURE`: SMTP connect with SSL, either `true` or `false`.
 - `SITE_NAME`: Your site name, will be displayed in notification message.
 - `SITE_URL`: Your site url, will be displayed in notification message.
 
 The following environment variables are optional:
 
 - `SENDER_NAME`: Custom sender's name in notification
-- `SENDER_EMAIL`: Custom sender's name in notification
+- `SENDER_EMAIL`: Custom sender's name in notification, required for some SMTP services.
 - `MAIL_SUBJECT`: Custom comment reply email title
 - `MAIL_TEMPLATE`: Custom reply email content
 - `MAIL_SUBJECT_ADMIN`: Custom new comment notification email title
@@ -72,12 +76,12 @@ We use Telegram bot to send Telegram notification. You need to set the following
 
 [pushplus](http://www.pushplus.plus/) is a message push platform which supports many channels like wechat, wechat work, ding talk, sms or email. You need to set the following env. You can go to [pushplus documentation](http://www.pushplus.plus/doc/guide/api.html#%E4%B8%80%E3%80%81%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%E6%8E%A5%E5%8F%A3) to get more parameter format detail.
 
-- PUSH_PLUS_KEY： user token. It's required for this service.
-- PUSH_PLUS_TOPIC：group id. Send yourself if it's empty. And It's unuseful if `PUSH_PLUS_CHANNEL` equals `webhook`.
-- PUSH_PLUS_TEMPLATE：Send template
-- PUSH_PLUS_CHANNEL：Send channel
-- PLUSH_PLUS_WEBHOOK：webhook is required if `PUSH_PLUS_CHANNEL` equals `webhook` or `cp`.
-- PUSH_PLUS_CALLBACKURL：callback url after send responsed.
+- `PUSH_PLUS_KEY`： user token. It's required for this service.
+- `PUSH_PLUS_TOPIC`：group id. Send yourself if it's empty. And It's unuseful if `PUSH_PLUS_CHANNEL` equals `webhook`.
+- `PUSH_PLUS_TEMPLATE`：Send template
+- `PUSH_PLUS_CHANNEL`：Send channel
+- `PUSH_PLUS_WEBHOOK`：webhook is required if `PUSH_PLUS_CHANNEL` equals `webhook` or `cp`.
+- `PUSH_PLUS_CALLBACKURL`：callback url after send responsed.
 - `AUTHOR_EMAIL`: The blogger’s email is used to distinguish whether the posted comment is posted by the blogger himself. If it is posted by the blogger, there will be no reminder notification.
 - `SITE_NAME`: Your site name, it will be displayed in notification message.
 - `SITE_URL`: Your site url, it will be displayed in notification message.
@@ -139,6 +143,52 @@ The template passes parameters through `self`, `parent` and `site` objects, whic
 ### Default template
 
 The default template is attached here for your reference:
+
+- MAIL_SUBJECT:
+
+  ```plain
+  {{parent.nick | safe}}，『{{site.name | safe}}』上的评论收到了回复
+  ```
+  
+- MAIL_TEMPLATE:
+
+```html
+  <div style="border-top:2px solid #12ADDB;box-shadow:0 1px 3px #AAAAAA;line-height:180%;padding:0 15px 12px;margin:50px auto;font-size:12px;">
+    <h2 style="border-bottom:1px solid #DDD;font-size:14px;font-weight:normal;padding:13px 0 10px 8px;">        
+      您在<a style="text-decoration:none;color: #12ADDB;" href="{{site.url}}" target="_blank">{{site.name}}</a>上的评论有了新的回复
+    </h2>
+    {{parent.nick}} 同学，您曾发表评论：
+    <div style="padding:0 12px 0 12px;margin-top:18px">
+      <div style="background-color: #f5f5f5;padding: 10px 15px;margin:18px 0;word-wrap:break-word;">{{parent.comment | safe}}</div>
+      <p><strong>{{self.nick}}</strong>回复说：</p>
+      <div style="background-color: #f5f5f5;padding: 10px 15px;margin:18px 0;word-wrap:break-word;">{{self.comment | safe}}</div>
+      <p>您可以点击<a style="text-decoration:none; color:#12addb" href="{{site.postUrl}}" target="_blank">查看回复的完整內容</a>，欢迎再次光临<a style="text-decoration:none; color:#12addb" href="{{site.url}}" target="_blank">{{site.name}}</a>。</p>
+      <br/>
+    </div>
+  </div>
+  ```
+
+- MAIL_SUBJECT_ADMIN:
+
+  ```plain
+  {{site.name | safe}} 上有新评论了
+  ```
+
+- MAIL_TEMPLATE_ADMIN:
+
+```html
+  <div style="border-top:2px solid #12ADDB;box-shadow:0 1px 3px #AAAAAA;line-height:180%;padding:0 15px 12px;margin:50px auto;font-size:12px;">
+    <h2 style="border-bottom:1px solid #DDD;font-size:14px;font-weight:normal;padding:13px 0 10px 8px;">
+      您在<a style="text-decoration:none;color: #12ADDB;" href="{{site.url}}" target="_blank">{{site.name}}</a>上的文章有了新的评论
+    </h2>
+    <p><strong>{{self.nick}}</strong>回复说：</p>
+    <div style="background-color: #f5f5f5;padding: 10px 15px;margin:18px 0;word-wrap:break-word;">
+      {{self.comment | safe}}
+    </div>
+    <p>您可以点击<a style="text-decoration:none; color:#12addb" href="{{site.postUrl}}" target="_blank">查看回复的完整內容</a></p>
+    <br/>
+  </div>
+  ```
 
 - QQ_TEMPLATE:
 

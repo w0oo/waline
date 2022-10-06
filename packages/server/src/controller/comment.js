@@ -6,7 +6,7 @@ const { getMarkdownParser } = require('../service/markdown');
 const markdownParser = getMarkdownParser();
 
 async function formatCmt(
-  { ua, user_id, ip, ...comment },
+  { ua, ip, ...comment },
   users = [],
   { avatarProxy },
   loginUser
@@ -20,7 +20,7 @@ async function formatCmt(
     comment.os = [ua.os.name, ua.os.version].filter((v) => v).join(' ');
   }
 
-  const user = users.find(({ objectId }) => user_id === objectId);
+  const user = users.find(({ objectId }) => comment.user_id === objectId);
 
   if (!think.isEmpty(user)) {
     comment.nick = user.display_name;
@@ -42,10 +42,12 @@ async function formatCmt(
 
   const isAdmin = loginUser && loginUser.type === 'administrator';
 
+  if (loginUser) {
+    comment.orig = comment.comment;
+  }
   if (!isAdmin) {
     delete comment.mail;
   } else {
-    comment.orig = comment.comment;
     comment.ip = ip;
   }
 
@@ -145,7 +147,8 @@ module.exports = class extends BaseRest {
 
       case 'count': {
         const { url } = this.get();
-        const where = { url: ['IN', url] };
+        const where =
+          Array.isArray(url) && url.length ? { url: ['IN', url] } : {};
 
         if (think.isEmpty(userInfo) || this.config('storage') === 'deta') {
           where.status = ['NOT IN', ['waiting', 'spam']];
@@ -156,12 +159,19 @@ module.exports = class extends BaseRest {
             user_id: userInfo.objectId,
           };
         }
-        const data = await this.modelInstance.select(where, { field: ['url'] });
-        const counts = url.map(
-          (u) => data.filter(({ url }) => url === u).length
-        );
 
-        return this.json(counts.length === 1 ? counts[0] : counts);
+        if (Array.isArray(url) && url.length > 1) {
+          const data = await this.modelInstance.select(where, {
+            field: ['url'],
+          });
+
+          return this.json(
+            url.map((u) => data.filter(({ url }) => url === u).length)
+          );
+        }
+        const data = await this.modelInstance.count(where);
+
+        return this.json(data);
       }
 
       case 'list': {
@@ -239,7 +249,7 @@ module.exports = class extends BaseRest {
       }
 
       default: {
-        const { path: url, page, pageSize } = this.get();
+        const { path: url, page, pageSize, sortBy } = this.get();
         const where = { url };
 
         if (think.isEmpty(userInfo) || this.config('storage') === 'deta') {
@@ -258,7 +268,6 @@ module.exports = class extends BaseRest {
         let rootComments = [];
         let rootCount = 0;
         const selectOptions = {
-          desc: 'insertedAt',
           field: [
             'status',
             'comment',
@@ -275,6 +284,16 @@ module.exports = class extends BaseRest {
             'like',
           ],
         };
+
+        if (sortBy) {
+          const [field, order] = sortBy.split('_');
+
+          if (order === 'desc') {
+            selectOptions.desc = field;
+          } else if (order === 'asc') {
+            // do nothing because of ascending order is default behaviour
+          }
+        }
 
         /**
          * most of case we have just little comments
@@ -514,8 +533,8 @@ module.exports = class extends BaseRest {
       think.logger.debug(`Comment post frequence check OK!`);
 
       /** Akismet */
-      const { COMMENT_AUDIT, AUTHOR_EMAIL, BLOGGER_EMAIL } = process.env;
-      const AUTHOR = AUTHOR_EMAIL || BLOGGER_EMAIL;
+      const { COMMENT_AUDIT, AUTHOR_EMAIL } = process.env;
+      const AUTHOR = AUTHOR_EMAIL;
       const isAuthorComment = AUTHOR
         ? data.mail.toLowerCase() === AUTHOR.toLowerCase()
         : false;
@@ -575,7 +594,7 @@ module.exports = class extends BaseRest {
       if (parentComment.user_id) {
         parentUser = await this.service(
           `storage/${this.config('storage')}`,
-          'User'
+          'Users'
         ).select({
           objectId: parentComment.user_id,
         });
@@ -604,7 +623,7 @@ module.exports = class extends BaseRest {
       : undefined;
 
     if (comment.status !== 'spam') {
-      const notify = this.service('notify');
+      const notify = this.service('notify', this);
 
       await notify.run(
         { ...cmtReturn, mail: resp.mail, rawComment: comment },
@@ -625,26 +644,21 @@ module.exports = class extends BaseRest {
 
   async putAction() {
     const { userInfo } = this.ctx.state;
-    let data = this.post();
+    const isAdmin = userInfo.type === 'administrator';
+    let data = isAdmin ? this.post() : this.post('comment,like');
     let oldData = await this.modelInstance.select({ objectId: this.id });
 
-    if (think.isEmpty(oldData)) {
+    if (think.isEmpty(oldData) || think.isEmpty(data)) {
       return this.success();
     }
 
     oldData = oldData[0];
-    if (think.isEmpty(userInfo) || userInfo.type !== 'administrator') {
-      if (!think.isBoolean(data.like)) {
-        return this.success();
-      }
-
+    if (think.isBoolean(data.like)) {
       const likeIncMax = this.config('LIKE_INC_MAX') || 1;
 
-      data = {
-        like:
-          (Number(oldData.like) || 0) +
-          (data.like ? Math.ceil(Math.random() * likeIncMax) : -1),
-      };
+      data.like =
+        (Number(oldData.like) || 0) +
+        (data.like ? Math.ceil(Math.random() * likeIncMax) : -1);
     }
 
     const preUpdateResp = await this.hook('preUpdate', {
@@ -660,23 +674,29 @@ module.exports = class extends BaseRest {
       objectId: this.id,
     });
 
+    let cmtUser;
+
+    if (!think.isEmpty(newData) && newData[0].user_id) {
+      cmtUser = await this.service(
+        `storage/${this.config('storage')}`,
+        'Users'
+      ).select({
+        objectId: newData[0].user_id,
+      });
+      cmtUser = cmtUser[0];
+    }
+    const cmtReturn = await formatCmt(
+      newData[0],
+      cmtUser ? [cmtUser] : [],
+      this.config(),
+      userInfo
+    );
+
     if (
       oldData.status === 'waiting' &&
       data.status === 'approved' &&
       oldData.pid
     ) {
-      let cmtUser;
-
-      if (newData.user_id) {
-        cmtUser = await this.service(
-          `storage/${this.config('storage')}`,
-          'User'
-        ).select({
-          objectId: newData.user_id,
-        });
-        cmtUser = cmtUser[0];
-      }
-
       let pComment = await this.modelInstance.select({
         objectId: oldData.pid,
       });
@@ -688,20 +708,14 @@ module.exports = class extends BaseRest {
       if (pComment.user_id) {
         pUser = await this.service(
           `storage/${this.config('storage')}`,
-          'User'
+          'Users'
         ).select({
           objectId: pComment.user_id,
         });
         pUser = pUser[0];
       }
 
-      const notify = this.service('notify');
-      const cmtReturn = await formatCmt(
-        newData,
-        cmtUser ? [cmtUser] : [],
-        this.config(),
-        userInfo
-      );
+      const notify = this.service('notify', this);
       const pcmtReturn = await formatCmt(
         pComment,
         pUser ? [pUser] : [],
@@ -710,7 +724,7 @@ module.exports = class extends BaseRest {
       );
 
       await notify.run(
-        { ...cmtReturn, mail: newData.mail },
+        { ...cmtReturn, mail: newData[0].mail },
         { ...pcmtReturn, mail: pComment.mail },
         true
       );
@@ -718,7 +732,7 @@ module.exports = class extends BaseRest {
 
     await this.hook('postUpdate', data);
 
-    return this.success();
+    return this.success(cmtReturn);
   }
 
   async deleteAction() {

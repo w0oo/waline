@@ -46,4 +46,8 @@ export default generateLocale([
   'Espera',
   'Spam',
   'Unsticky',
+  'Mais velho',
+  'Mais recentes',
+  'Mais quente',
+  'O que você acha?',
 ]);

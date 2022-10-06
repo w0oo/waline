@@ -5,7 +5,8 @@ icon: notice
 
 当网站有用户发布评论或者用户回复评论时，Waline 支持对博主和回复评论作者进行通知。
 
-博主通知支持多种方式，包括 QQ、微信、邮件等，回复评论作者仅支持邮件通知。
+- 博主通知支持多种方式，包括 QQ、微信、邮件等。
+- 当访客的评论收到回复时，我们会对访客进行邮件通知。
 
 <!-- more -->
 
@@ -28,6 +29,7 @@ icon: notice
 
 - `SMTP_USER`: SMTP 邮件发送服务的用户名，一般为登录邮箱。
 - `SMTP_PASS`: SMTP 邮件发送服务的密码，一般为邮箱登录密码，部分邮箱(例如 163)是单独的 SMTP 密码。
+- `SMTP_SECURE`: 是否使用 SSL 连接 SMTP。
 - `SITE_NAME`: 网站名称，用于在消息中显示。
 - `SITE_URL`: 网站地址，用于在消息中显示。
 - `AUTHOR_EMAIL`: 博主邮箱，用来接收新评论通知。如果是博主发布的评论则不进行提醒通知。
@@ -96,12 +98,12 @@ Telegram 通知通过 Telegram bot 机器人实现，需要配置以下几个环
 
 [pushplus](http://www.pushplus.plus/) 集成了微信、企业微信、钉钉、短信、邮件等渠道的信息推送平台。需要配置以下几个环境变量，具体的参数格式见 [pushplus 文档](http://www.pushplus.plus/doc/guide/api.html#%E4%B8%80%E3%80%81%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%E6%8E%A5%E5%8F%A3)：
 
-- PUSH_PLUS_KEY： 用户令牌，即 `token`，必填。
-- PUSH_PLUS_TOPIC：群组编码，不填仅发送给自己；channel 为 webhook 时无效
-- PUSH_PLUS_TEMPLATE：发送模板
-- PUSH_PLUS_CHANNEL：发送渠道
-- PLUSH_PLUS_WEBHOOK：webhook 编码，仅在 channel 使用 webhook 渠道和 CP 渠道时需要填写
-- PUSH_PLUS_CALLBACKURL：发送结果回调地址
+- `PUSH_PLUS_KE`Y： 用户令牌，即 `token`，必填。
+- `PUSH_PLUS_TOPIC`：群组编码，不填仅发送给自己；channel 为 webhook 时无效
+- `PUSH_PLUS_TEMPLATE`：发送模板
+- `PUSH_PLUS_CHANNEL`：发送渠道
+- `PUSH_PLUS_WEBHOOK`：webhook 编码，仅在 channel 使用 webhook 渠道和 CP 渠道时需要填写
+- `PUSH_PLUS_CALLBACKURL`：发送结果回调地址
 - `AUTHOR_EMAIL`: 博主邮箱，用来区分发布的评论是否是博主本身发布的。如果是博主发布的则不进行提醒通知。
 - `SITE_NAME`: 网站名称，用于在消息中显示。
 - `SITE_URL`: 网站地址，用于在消息中显示。

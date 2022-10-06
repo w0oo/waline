@@ -4,16 +4,6 @@ import { defineUserConfig } from 'vuepress';
 import theme from './theme';
 
 export default defineUserConfig({
-  head: [
-    [
-      'link',
-      {
-        rel: 'stylesheet',
-        href: '//at.alicdn.com/t/font_3180165_rlbqujdkar.css',
-      },
-    ],
-  ],
-
   locales: {
     '/': {
       lang: 'zh-CN',
@@ -29,11 +19,11 @@ export default defineUserConfig({
 
   alias: {
     '@MigrationTool': path.resolve(__dirname, './components/MigrationTool.vue'),
-    '@theme-hope/components/HomePage': path.resolve(
+    '@theme-hope/components/HomePage.js': path.resolve(
       __dirname,
       './components/HomePage'
     ),
-    '@theme-hope/components/NormalPage': path.resolve(
+    '@theme-hope/components/NormalPage.js': path.resolve(
       __dirname,
       './components/NormalPage'
     ),

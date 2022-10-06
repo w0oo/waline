@@ -3,7 +3,7 @@ title: 客户端介绍
 icon: intro
 ---
 
-Waline 官方提供了 [`@waline/client`](https://www.npmjs.com/package/@waline/client) 客户端，使用 Vue + TypeScript 编写，大小仅为 48kb gzip。
+Waline 官方提供了 [`@waline/client`](https://www.npmjs.com/package/@waline/client) 客户端，使用 Vue + TypeScript 编写，大小仅为 53kb gzip。
 
 ## 引入
 
@@ -33,11 +33,13 @@ Waline 支持诸多功能，包括登录、头像、多语言、自定义 Emoji�
 
 Waline 官方添加了多种语言的内置支持，同时你可以在此基础上 [自定义多语言](./i18n.md)。
 
-Waline 服务端默认使用 [Libravatar 头像配置](../server/intro.md#头像配置)。
-
 你可以很轻松的使用 Waline 提供的预设或自己创建新的预设来自定义评论框内的 Emoji 表情，详见 [自定义 Emoji](./emoji.md)。
 
+如果你想让用户在评论之外，快速表达对文章的反应，你可以手动启用 [文章反应](./reaction.md) 功能。
+
 Waline 内置了图像上传支持，默认将图片转为 Base64 内嵌，你也可以通过 [`imageUploader` 选项](../../reference/client.md#uploadimage) 完全自定义图像上传过程，比如到你想要使用的图床。
+
+Waline 支持表情包搜索功能，默认使用 <https://giphy.com>。你也可以[自定义自己的表情包服务](./search.md)。
 
 ## 自定义样式
 
@@ -51,7 +53,7 @@ Waline 支持在页面的其他部分显示评论数，请参阅 [评论统计](
 
 ## Vue 组件
 
-由于 Waline 官方客户端基于 Vue3，Waline 同时提供了一个 13KB Gzip 大小的 Vue 组件，所有的组件属性都是响应式的。
+由于 Waline 官方客户端基于 Vue3，Waline 同时提供了一个 18KB Gzip 大小的 Vue 组件，所有的组件属性都是响应式的。
 
 如果你在使用基于 Vue 的项目，你可以直接在项目中导入并使用 Waline 组件，详见 [Vue 组件](./component.md)。
 

@@ -1,18 +1,7 @@
 const Base = require('./base');
 
 module.exports = class extends Base {
-  async __before() {
-    await super.__before();
-
-    const { type, path } = this.get();
-    const { like } = this.post();
-    const isAllowedGet = this.isGet && (type !== 'list' || path);
-    const isAllowedPut = this.ctx.isMethod('PUT') && think.isBoolean(like);
-
-    if (this.isPost || isAllowedGet || isAllowedPut) {
-      return;
-    }
-
+  checkAdmin() {
     const { userInfo } = this.ctx.state;
 
     if (think.isEmpty(userInfo)) {
@@ -32,6 +21,7 @@ module.exports = class extends Base {
    * @apiParam  {String}  path  comment url path
    * @apiParam  {String}  page  page
    * @apiParam  {String}  pagesize  page size
+   * @apiParam  {String}  sortBy  comment sort type, one of 'insertedAt_desc', 'insertedAt_asc', 'like_desc'
    *
    * @apiSuccess  (200) {Number}  page return current comments list page
    * @apiSuccess  (200) {Number}  pageSize  to  return error message if error
@@ -89,7 +79,7 @@ module.exports = class extends Base {
    * @apiGroup Comment
    * @apiVersion  0.0.1
    *
-   * @apiParam  {String}  url a array string join by comma just like `a` or `a,b`
+   * @apiParam  {String}  url a array string join by comma just like `a` or `a,b`, return site comment count if url empty
    *
    * @apiSuccessExample {Number} Single Path Response:
    * 300
@@ -115,7 +105,12 @@ module.exports = class extends Base {
    * @apiSuccess  (200) {String}  response.type comment login user type
    */
   getAction() {
-    const { type } = this.get();
+    const { type, path } = this.get();
+    const isAllowedGet = type !== 'list' || path;
+
+    if (!isAllowedGet) {
+      this.checkAdmin();
+    }
 
     switch (type) {
       case 'recent':
@@ -131,7 +126,6 @@ module.exports = class extends Base {
         this.rules = {
           url: {
             array: true,
-            required: true,
           },
         };
         break;
@@ -169,6 +163,10 @@ module.exports = class extends Base {
             int: { max: 100 },
             default: 10,
           },
+          sortBy: {
+            in: ['insertedAt_desc', 'insertedAt_asc', 'like_desc'],
+            default: 'insertedAt_desc',
+          },
         };
         break;
     }
@@ -202,13 +200,19 @@ module.exports = class extends Base {
    * @apiSuccess  (200) {String}  data.avatar comment user avatar
    * @apiSuccess  (200) {String}  data.type comment login user type
    */
-  postAction() {
+  async postAction() {
     const { LOGIN } = process.env;
     const { userInfo } = this.ctx.state;
 
-    if (LOGIN === 'force' && think.isEmpty(userInfo)) {
+    if (!think.isEmpty(userInfo)) {
+      return;
+    }
+
+    if (LOGIN === 'force') {
       return this.ctx.throw(401);
     }
+
+    return this.useCaptchaCheck();
   }
 
   /**
@@ -226,17 +230,46 @@ module.exports = class extends Base {
    * @apiSuccess  (200) {Number}  errno 0
    * @apiSuccess  (200) {String}  errmsg  return error message if error
    */
-  putAction() {
+  async putAction() {
     const { userInfo } = this.ctx.state;
+    const { like } = this.post();
 
-    if (think.isEmpty(userInfo) || userInfo.type !== 'administrator') {
+    // 1. like
+    if (think.isEmpty(userInfo) && think.isBoolean(like)) {
       this.rules = {
         like: {
           required: true,
           boolean: true,
         },
       };
+
+      return;
     }
+
+    if (think.isEmpty(userInfo)) {
+      return this.ctx.throw(401);
+    }
+
+    // 2. administrator
+    if (userInfo.type === 'administrator') {
+      return;
+    }
+
+    // 3. comment author modify comment content
+    const modelInstance = this.service(
+      `storage/${this.config('storage')}`,
+      'Comment'
+    );
+    const commentData = await modelInstance.select({
+      user_id: userInfo.objectId,
+      objectId: this.id,
+    });
+
+    if (!think.isEmpty(commentData)) {
+      return;
+    }
+
+    return this.ctx.throw(403);
   }
 
   /**
@@ -247,5 +280,30 @@ module.exports = class extends Base {
    * @apiSuccess  (200) {Number}  errno 0
    * @apiSuccess  (200) {String}  errmsg  return error message if error
    */
-  deleteAction() {}
+  async deleteAction() {
+    const { userInfo } = this.ctx.state;
+
+    if (think.isEmpty(userInfo)) {
+      return this.ctx.throw(401);
+    }
+
+    if (userInfo.type === 'administrator') {
+      return;
+    }
+
+    const modelInstance = this.service(
+      `storage/${this.config('storage')}`,
+      'Comment'
+    );
+    const commentData = await modelInstance.select({
+      user_id: userInfo.objectId,
+      objectId: this.id,
+    });
+
+    if (!think.isEmpty(commentData)) {
+      return;
+    }
+
+    return this.ctx.throw(403);
+  }
 };

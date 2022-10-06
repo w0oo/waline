@@ -3,7 +3,7 @@ title: Client Intro
 icon: intro
 ---
 
-Waline official provides the [`@waline/client`](https://www.npmjs.com/package/@waline/client), written in Vue + TypeScript, and the size is only 48kb gzip.
+Waline official provides the [`@waline/client`](https://www.npmjs.com/package/@waline/client), written in Vue + TypeScript, and the size is only 53kb gzip.
 
 ## Introduce
 
@@ -31,13 +31,15 @@ You can learn about the complete syntax supported by Waline in the [Supported Sy
 
 Waline has many features, including login, avatar, multi-language, custom Emoji, image upload and real-time preview. You can try these features in the demo below.
 
-Waline officially added support for mutiple languages, and you can also customize locales. See [I18n support](./i18n.md) for details.
-
-Waline uses Gravatar, and also supports you to customize the default avatar, see [Server → Avatar config](../server/intro.md#avatar) for details.
+Waline officially added support for mutiple languages, and you can also customize locales. See [I18n Support](./i18n.md) for details.
 
 You can easily use the presets provided by Waline or create new presets to customize the Emoji popup in the comment box, see [Custom Emoji](./emoji.md) for details.
 
+If you want users to quickly express their reactions to articles outside of comments, you can manually enable the [Article Reaction](./reaction.md) feature.
+
 Waline has built-in image upload support, coverting image to Base64 , you can customize the image upload through [`imageUploader`](../../reference/client.md#uploadimage) option.
+
+Waline supports emoji search feature and uses <https://giphy.com> by default. You can also [customize your own emoji service](./search.md).
 
 ## Style Customization
 
@@ -49,7 +51,7 @@ Waline supports comment and pageview statistics. For more information, please re
 
 ## Vue Component
 
-Since Waline's official client is based on Vue3, Waline also provides a 13KB Gzip Vue component, and all component properties are reactive.
+Since Waline's official client is based on Vue3, Waline also provides a 18KB Gzip Vue component, and all component properties are reactive.
 
 If you are building a Vue project, you can directly import and use Waline components in the project, see [Vue Components](./如果你在使用基于 Vue 的项目，你可以直接在项目中导入并使用 Waline 组件，详见 [Vue 组件](./component.md)。
 .md) for details.
