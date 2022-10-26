@@ -219,7 +219,7 @@ https://example.com/myemoji/
 
 ::: warning
 
-由于 cdn.jsdelivr.net 在国内受到污染，你可以将 `cdn.jsdelivr.net` 换成 `gcore.jsdelivr.net`
+由于 cdn.jsdelivr.net 在国内受到污染，你可以将 `cdn.jsdelivr.net` 换成 `gcore.jsdelivr.net` 及其他链接
 
 :::
 
