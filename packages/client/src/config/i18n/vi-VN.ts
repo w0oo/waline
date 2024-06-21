@@ -1,4 +1,4 @@
-import { generateLocale } from './generate';
+import { generateLocale } from './generate.js';
 
 export default generateLocale([
   'Tên',
@@ -46,4 +46,8 @@ export default generateLocale([
   'Đang chờ đợi',
   'Thư rác',
   'Không dính',
+  'lâu đời nhất',
+  'muộn nhất',
+  'nóng nhất',
+  'What do you think?',
 ]);

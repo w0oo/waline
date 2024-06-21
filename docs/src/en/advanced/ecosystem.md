@@ -1,6 +1,7 @@
 ---
 title: Ecosystem
 icon: ecosystem
+order: 3
 ---
 
 Waline is a classic Client/Server architecture, which provides a relatively complete API interface. you can implement your own client implementation based on the API provided by the server.
@@ -28,6 +29,10 @@ Waline is a classic Client/Server architecture, which provides a relatively comp
   </script>
   ```
 
+- [sodesu](https://github.com/BeiyanYunyi/sodesu)
+
+  By [@BeiyanYunyi](https://github.com/BeiyanYunyi), build with Solid.js. For usage, see its README and [website](https://BeiyanYunyi.github.io/sodesu/)。
+
 ## Plugins
 
 ### Hexo
@@ -43,9 +48,12 @@ Waline is a classic Client/Server architecture, which provides a relatively comp
 - [vuepress-plugin-comment2](https://vuepress-theme-hope.github.io/v2/comment/): Comment system for VuePress2.
 - [@mr-hope/vuepress-plugin-comment](https://vuepress-theme-hope.github.io/v1/comment/): Comment system for VuePress1.
 
+### Gatsby
+
+- [gatsby-plugin-waline](https://www.npmjs.com/package/gatsby-plugin-waline): Comment system plugin for Gatsby.
+
 Others:
 
-- [vuepress-plugin-waline](https://github.com/xinlei3166/vuepress-plugin-waline): Waline comment system for VuePress2.
 - [vuepress-plugin-comment-plus](https://github.com/SivanLaai/vuepress-plugin-comment-plus): Comment system plugin for VuePress.
 
 ## Theme
@@ -62,6 +70,8 @@ Others:
 - 🐴 [Stun](https://github.com/liuyib/hexo-theme-stun)
 - 🤖 [Yun](https://github.com/YunYouJun/hexo-theme-yun)
 - 🦄 [Unicorn](https://github.com/Uzizkp/hexo-theme-unicorn)
+- 💀 [freemind.bithack](https://github.com/Ares-X/hexo-theme-freemind.bithack)
+- 🤡 [Redefine](https://github.com/EvanNotFound/hexo-theme-redefine)
 
 ### VuePress
 
@@ -72,9 +82,10 @@ Others:
 
 - [hugo-theme-stack](https://github.com/CaiJimmy/hugo-theme-stack)
 - [DoIt](https://github.com/HEIGE-PCloud/DoIt)
+- [Kenny](https://github.com/Kindle-deep/hugo-theme-Kenny)
 
 ## More
 
 We are looking forward to more clients and plugins from the community to expand the Waline ecosystem. :tada:
 
-If you implement any Waline client, ecological plugin or theme including Waline, please comment and let us know!
+If you implement any Waline client, ecological plugin or theme including Waline, please send a PR and let us know!

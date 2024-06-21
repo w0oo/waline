@@ -1,4 +1,4 @@
-import { getUserInfo, login, logout, register, forgot } from '../services/auth';
+import { forgot, getUserInfo, login, logout, register } from '../services/auth';
 import { updateProfile } from '../services/user';
 
 export const user = {
@@ -15,7 +15,7 @@ export const user = {
     async loadUserInfo() {
       const user = await getUserInfo();
 
-      if (!user) {
+      if (!user?.email) {
         return;
       }
       if (window.opener) {
@@ -26,14 +26,20 @@ export const user = {
 
         window.opener.postMessage(
           { type: 'userInfo', data: { token, remember, ...user } },
-          '*'
+          '*',
         );
       }
 
       return dispatch.user.setUser(user);
     },
-    async login({ email, password, code, remember }) {
-      const { token, ...user } = await login({ email, password, code });
+    async login({ email, password, code, remember, recaptchaV3, turnstile }) {
+      const { token, ...user } = await login({
+        email,
+        password,
+        code,
+        recaptchaV3,
+        turnstile,
+      });
 
       if (token) {
         window.TOKEN = token;
@@ -44,7 +50,7 @@ export const user = {
         if (window.opener) {
           window.opener.postMessage(
             { type: 'userInfo', data: { token, remember, ...user } },
-            '*'
+            '*',
           );
         }
       }

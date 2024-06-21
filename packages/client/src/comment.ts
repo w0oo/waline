@@ -1,11 +1,12 @@
-import { useUserInfo } from './composables';
+import { fetchCommentCount } from '@waline/api';
+
+import type { WalineAbort } from './typings/index.js';
 import {
   decodePath,
   errorHandler,
-  fetchCommentCount,
+  getQuery,
   getServerURL,
-} from './utils';
-import type { WalineAbort } from './typings';
+} from './utils/index.js';
 
 export interface WalineCommentCountOptions {
   /**
@@ -18,7 +19,7 @@ export interface WalineCommentCountOptions {
   /**
    * 评论数 CSS 选择器
    *
-   * Commment count CSS selector
+   * Comment count CSS selector
    *
    * @default '.waline-comment-count'
    */
@@ -38,7 +39,7 @@ export interface WalineCommentCountOptions {
    *
    * Language of error message
    *
-   * @default 'zh-CN'
+   * @default navigator.language
    */
   lang?: string;
 }
@@ -47,25 +48,21 @@ export const commentCount = ({
   serverURL,
   path = window.location.pathname,
   selector = '.waline-comment-count',
-  lang = 'zh-CN',
-}: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-WalineCommentCountOptions): WalineAbort => {
+  lang = navigator.language,
+}: WalineCommentCountOptions): WalineAbort => {
   const controller = new AbortController();
 
   // comment count
   const elements = document.querySelectorAll<HTMLElement>(selector);
 
-  const userInfo = useUserInfo();
-
   if (elements.length)
     void fetchCommentCount({
       serverURL: getServerURL(serverURL),
       paths: Array.from(elements).map((element) =>
-        decodePath(element.dataset.path || element.getAttribute('id') || path)
+        decodePath(getQuery(element) ?? path),
       ),
       lang,
       signal: controller.signal,
-      token: userInfo.value?.token,
     })
       .then((counts) => {
         elements.forEach((element, index) => {

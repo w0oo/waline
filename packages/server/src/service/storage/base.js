@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 
 module.exports = class extends think.Service {
@@ -16,7 +17,9 @@ module.exports = class extends think.Service {
 
   async add(
     data,
-    { access: { read = true, write = true } = { read: true, write: true } } = {}
+    {
+      access: { read = true, write = true } = { read: true, write: true },
+    } = {},
   ) {
     //to be implemented
   }

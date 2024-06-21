@@ -1,4 +1,5 @@
-const path = require('path');
+const path = require('node:path');
+
 const Application = require('thinkjs');
 
 const instance = new Application({
@@ -13,7 +14,7 @@ instance.run();
 let config = {};
 
 try {
-  require('./config.js');
+  config = require('./config.js');
 } catch (e) {
   // do nothing
 }

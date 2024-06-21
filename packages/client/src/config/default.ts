@@ -1,117 +1,91 @@
-import type { WalineMeta, WalineSearchOptions } from '../typings';
+import type { IGif } from '@giphy/js-types';
 
-const availableMeta: WalineMeta[] = ['nick', 'mail', 'link'];
+import type {
+  WalineEmojiPresets,
+  WalineMeta,
+  WalineSearchOptions,
+  WalineSearchResult,
+} from '../typings/index.js';
+
+const AVAILABLE_META: WalineMeta[] = ['nick', 'mail', 'link'];
 
 export const getMeta = (meta: WalineMeta[]): WalineMeta[] =>
-  meta.filter((item) => availableMeta.includes(item));
+  meta.filter((item) => AVAILABLE_META.includes(item));
 
-export const defaultLang = 'zh-CN';
+export const DEFAULT_EMOJI: WalineEmojiPresets[] = [
+  '//unpkg.com/@waline/emojis@1.1.0/weibo',
+];
+
+export const DEFAULT_REACTION = [
+  '//unpkg.com/@waline/emojis/tieba/tieba_agree.png',
+  '//unpkg.com/@waline/emojis/tieba/tieba_look_down.png',
+  '//unpkg.com/@waline/emojis/tieba/tieba_sunglasses.png',
+  '//unpkg.com/@waline/emojis/tieba/tieba_pick_nose.png',
+  '//unpkg.com/@waline/emojis/tieba/tieba_awkward.png',
+  '//unpkg.com/@waline/emojis/tieba/tieba_sleep.png',
+];
 
 export const defaultUploadImage = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
-    if (file.size > 128 * 1000) {
+    if (file.size > 128 * 1000)
       return reject(new Error('File too large! File size limit 128KB'));
-    }
 
     const reader = new FileReader();
 
     reader.readAsDataURL(file);
-    reader.onload = (): void => resolve(reader.result?.toString() || '');
+    reader.onload = (): void => resolve(reader.result?.toString() ?? '');
     reader.onerror = reject;
   });
 
-export const defaultTexRenderer = (blockMode: boolean): string =>
+export const defaultTeXRenderer = (blockMode: boolean): string =>
   blockMode === true
-    ? '<p class="wl-tex">Tex is not available in preview</p>'
-    : '<span class="wl-tex">Tex is not available in preview</span>';
+    ? '<p class="wl-tex">TeX is not available in preview</p>'
+    : '<span class="wl-tex">TeX is not available in preview</span>';
 
-export const getDefaultSearchOptions = (): WalineSearchOptions => {
-  interface FetchGifRequest {
-    keyword: string;
-    pos?: string;
+export const getDefaultSearchOptions = (lang: string): WalineSearchOptions => {
+  interface GifResult {
+    data: IGif[];
+    meta: {
+      msg: string;
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      response_id: string;
+      status: number;
+    };
+    pagination: {
+      count: number;
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      total_count: number;
+      offset: number;
+    };
   }
 
-  type GifFormat =
-    | 'gif'
-    | 'mediumgif'
-    | 'tinygif'
-    | 'nanogif'
-    | 'mp4'
-    | 'loopedmp4'
-    | 'tinymp4'
-    | 'nanomp4'
-    | 'webm'
-    | 'tinywebm'
-    | 'nanowebm';
-
-  interface MediaObject {
-    preview: string;
-    url: string;
-    dims: number[];
-    size: number;
-  }
-
-  interface GifObject {
-    created: number;
-    hasaudio: boolean;
-    id: string;
-    media: Record<GifFormat, MediaObject>[];
-    tags: string[];
-    title: string;
-    itemurl: string;
-    hascaption: boolean;
-    url: string;
-  }
-
-  interface FetchGifResponse {
-    next: string;
-    results: GifObject[];
-  }
-
-  const state = {
-    next: '',
-  };
-
-  const fetchGif = ({
-    keyword,
-    pos,
-  }: FetchGifRequest): Promise<FetchGifResponse> => {
-    const baseUrl = `https://g.tenor.com/v1/search`;
-    const query = new URLSearchParams('media_filter=minimal');
-
-    query.set('key', 'PAY5JLFIH6V6');
-    query.set('limit', '20');
-    query.set('pos', pos || '');
-    query.set('q', keyword);
-
-    return fetch(`${baseUrl}?${query.toString()}`, {
-      headers: {
+  const fetchGiphy = async (
+    url: string,
+    params: Record<string, string> = {},
+  ): Promise<WalineSearchResult> =>
+    fetch(
+      `https://api.giphy.com/v1/gifs/${url}?${new URLSearchParams({
+        lang,
+        limit: '20',
+        rating: 'g',
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((resp) => resp.json() as Promise<FetchGifResponse>)
-      .catch(() => ({ next: pos || '', results: [] }));
-  };
+        api_key: '6CIMLkNMMOhRcXPoMCPkFy4Ybk2XUiMp',
+        ...params,
+      }).toString()}`,
+    )
+      .then((resp) => resp.json() as Promise<GifResult>)
+      .then(({ data }) =>
+        data.map((gif) => ({
+          title: gif.title,
+          src: gif.images.downsized_medium.url,
+        })),
+      );
 
   return {
-    search: (word = '') =>
-      fetchGif({ keyword: word }).then((resp) => {
-        state.next = resp.next;
-
-        return resp.results.map((item) => ({
-          title: item.title,
-          src: item.media[0].tinygif.url,
-        }));
-      }),
-    more: (word) =>
-      fetchGif({ keyword: word, pos: state.next }).then((resp) => {
-        state.next = resp.next;
-
-        return resp.results.map((item) => ({
-          title: item.title,
-          src: item.media[0].tinygif.url,
-        }));
-      }),
+    search: (word: string): Promise<WalineSearchResult> =>
+      fetchGiphy('search', { q: word, offset: '0' }),
+    default: (): Promise<WalineSearchResult> => fetchGiphy('trending', {}),
+    more: (word: string, offset = 0): Promise<WalineSearchResult> =>
+      fetchGiphy('search', { q: word, offset: offset.toString() }),
   };
 };

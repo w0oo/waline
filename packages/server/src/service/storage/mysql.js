@@ -1,4 +1,4 @@
-const Base = require('./base');
+const Base = require('./base.js');
 
 module.exports = class extends Base {
   parseWhere(filter) {
@@ -44,7 +44,7 @@ module.exports = class extends Base {
 
     instance.where(this.parseWhere(where));
     if (desc) {
-      instance.order(`${desc} DESC`);
+      instance.order({ [desc]: 'DESC' });
     }
     if (limit || offset) {
       instance.limit(offset || 0, limit);
@@ -67,7 +67,7 @@ module.exports = class extends Base {
       return instance.count();
     }
 
-    instance.field([...group, 'COUNT(*) as count']);
+    instance.field([...group, 'COUNT(*) as count'].join(','));
     instance.group(group);
 
     return instance.select();
@@ -79,10 +79,9 @@ module.exports = class extends Base {
       delete data.objectId;
     }
     const date = new Date();
-    if (!data.createdAt)
-      data.createdAt = date;
-    if (!data.updatedAt)
-      data.updatedAt = date;
+
+    if (!data.createdAt) data.createdAt = date;
+    if (!data.updatedAt) data.updatedAt = date;
 
     const instance = this.model(this.tableName);
     const id = await instance.add(data);
@@ -104,7 +103,7 @@ module.exports = class extends Base {
           .update(updateData);
 
         return { ...item, ...updateData };
-      })
+      }),
     );
   }
 
@@ -112,5 +111,13 @@ module.exports = class extends Base {
     const instance = this.model(this.tableName);
 
     return instance.where(this.parseWhere(where)).delete();
+  }
+
+  async setSeqId(id) {
+    const instance = this.model(this.tableName);
+
+    return instance.query(
+      `ALTER TABLE ${instance.tableName} AUTO_INCREMENT = ${id};`,
+    );
   }
 };

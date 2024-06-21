@@ -1,4 +1,4 @@
-const Base = require('./base');
+const Base = require('./base.js');
 
 module.exports = class extends Base {
   async __before(...args) {
@@ -16,16 +16,66 @@ module.exports = class extends Base {
   }
 
   /**
-   * @api {GET} /db export site data
+   * @api {GET} /api/db export site data
    * @apiGroup Site
    * @apiVersion  0.0.1
+   *
+   * @apiParam  {String}  lang  language
    */
   async getAction() {}
 
   /**
-   * @api {GET} /db import site data
+   * @api {POST} /api/db import site data
    * @apiGroup Site
    * @apiVersion  0.0.1
+   *
+   * @apiParam  {String}  lang  language
    */
-  async postAction() {}
+  async postAction() {
+    this.rules = {
+      table: {
+        string: true,
+        required: true,
+        method: 'GET',
+      },
+    };
+  }
+
+  /**
+   * @api {PUT} /api/db update site table data
+   * @apiGroup Site
+   * @apiVersion  0.0.1
+   *
+   * @apiParam  {String}  lang  language
+   */
+  async putAction() {
+    this.rules = {
+      table: {
+        string: true,
+        required: true,
+        method: 'GET',
+      },
+      objectId: {
+        required: true,
+        method: 'GET',
+      },
+    };
+  }
+
+  /**
+   * @api {DELETE} /api/db clean site data
+   * @apiGroup Site
+   * @apiVersion  0.0.1
+   *
+   * @apiParam  {String}  lang  language
+   */
+  async deleteAction() {
+    this.rules = {
+      table: {
+        string: true,
+        required: true,
+        method: 'GET',
+      },
+    };
+  }
 };

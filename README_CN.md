@@ -1,12 +1,14 @@
-<img src="./assets/logo.png" width='200' align="right" />
+<!-- markdownlint-disable MD033 MD041 -->
+
+<img src="./assets/logo.png" width="200" align="right" alt="Waline 图标" />
 
 # Waline
 
 ![作者](https://img.shields.io/badge/作者-lizheming,%20Mr.Hope-blue?style=for-the-badge) ![协议](https://img.shields.io/github/license/walinejs/waline?style=for-the-badge) [![qq](https://img.shields.io/badge/qq-waline交流群-f75137?logo=TencentQQ&style=for-the-badge)](https://jq.qq.com/?_wv=1027&k=bKoVBppG) [![telegram](https://img.shields.io/badge/telegram-walinejs-2ca5e0?logo=telegram&style=for-the-badge)](https://t.me/walinejs)
 
-![npm version](https://img.shields.io/npm/v/@waline/client?color=critical&logo=npm&style=flat-square&label=@walin/client) ![npm bundle size (scoped)](https://img.shields.io/bundlephobia/minzip/@waline/client?style=flat-square&label=@waline/client%20size) ![downloads](https://img.shields.io/npm/dm/@waline/vercel?style=flat-square&label=@waline/client%20downloads) [![jsDelivr hits](https://data.jsdelivr.com/v1/package/npm/@waline/client/badge)](https://www.jsdelivr.com/package/npm/@waline/client)
+![npm version](https://img.shields.io/npm/v/@waline/client?color=critical&logo=npm&style=flat-square&label=@waline/client) ![npm bundle size (scoped)](https://img.shields.io/bundlephobia/minzip/@waline/client?style=flat-square&label=@waline/client%20size) ![downloads](https://img.shields.io/npm/dm/@waline/vercel?style=flat-square&label=@waline/client%20downloads) [![jsDelivr hits](https://data.jsdelivr.com/v1/package/npm/@waline/client/badge)](https://www.jsdelivr.com/package/npm/@waline/client)
 
-![npm version](https://img.shields.io/npm/v/@waline/vercel?color=critical&logo=npm&style=flat-square&label=@walin/vercel)
+![npm version](https://img.shields.io/npm/v/@waline/vercel?color=critical&logo=npm&style=flat-square&label=@waline/vercel)
 
 一款简洁、安全的评论系统。
 
@@ -25,18 +27,20 @@
 - Markdown 语法支持
 - 轻量易用
 - 免费部署
-- 多种部署方式和存储服务支持，每列选择一项多达 84 种部署方式任君选择
+- 多种部署方式和存储服务支持，每列选择一项多达 243 种部署方式任君选择
   | | Waline | |
-  | -------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------ |
+  | ----------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------ |
   | **客户端脚本** | **服务端部署** | **数据存储** |
   | [@waline/client](https://waline.js.org) | [Vercel](https://vercel.com) | [LeanCloud](https://leancloud.app) |
-  | [MiniValine](https://minivaline.js.org/) | [Deta](https://deta.sh) | [CloudBase](https://clodbase.net) |
-  | | [CloudBase](https://cloudbase.net/) | [MongoDB](https://mongodb.com) |
+  | [MiniValine](https://minivaline.js.org/) | [Deta](https://deta.space) | [CloudBase](https://cloudbase.net) |
+  | [sodesu](https://github.com/BeiyanYunyi/sodesu) | [CloudBase](https://cloudbase.net/) | [MongoDB](https://mongodb.com) |
   | | [百度云 CFC](https://console.bce.baidu.com/cfc/#/cfc/functions) | MySQL |
   | | [阿里云 FC](https://fc.console.aliyun.com/) | SQLite |
   | | [Railway](https://railway.app) | PostgreSQL |
   | | [Render](https://render.com) | [GitHub](https://github.com) |
-  | | Docker | [Deta Base](https://docs.deta.sh/docs/base/about) |
+  | | [Zeabur](https://zeabur.com) | [Deta Base](https://deta.space/docs/en/reference/base/about) |
+  | | [Netlify](https://netlify.com) | [TiDB](https://tidbcloud.com/) |
+  | | Docker | |
   | | 独立部署 | |
 
 ## Todo
@@ -70,7 +74,7 @@
 你可以在 [GitHub Discussions](https://github.com/walinejs/waline/discussions) 中发布问题获取支持。当然你也可以加入我们的 [Telegram](https://t.me/walinejs) 小组或者是扫描下方二维码加入我们的 [Waline 用户交流 QQ 群](https://qm.qq.com/cgi-bin/qm/qr?k=rPZvq_EBfwQa6QZX7sToVlhH49c6ed0R&jump_from=webapi) 以获取更多的支持。
 
 <a href="https://qm.qq.com/cgi-bin/qm/qr?k=rPZvq_EBfwQa6QZX7sToVlhH49c6ed0R&jump_from=webapi" target="_blank">
-  <img src="./assets/qqgroup.jpg" width="300" />
+  <img src="./assets/qqgroup.jpg" width="300" alt="QQ群二维码" />
 </a>
 
 ## 协议

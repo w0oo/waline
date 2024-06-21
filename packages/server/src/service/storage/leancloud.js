@@ -1,5 +1,7 @@
 const AV = require('leancloud-storage');
-const Base = require('./base');
+
+const Base = require('./base.js');
+
 const { LEAN_ID, LEAN_KEY, LEAN_MASTER_KEY, LEAN_SERVER } = process.env;
 
 if (LEAN_ID && LEAN_KEY && LEAN_MASTER_KEY) {
@@ -177,7 +179,7 @@ module.exports = class extends Base {
 
         return this.add(item);
       }),
-      1
+      1,
     );
     this.tableName = currentTableName;
   }
@@ -238,7 +240,7 @@ module.exports = class extends Base {
           return;
         }
         throw e;
-      }
+      },
     );
     this.tableName = currentTableName;
   }
@@ -258,16 +260,49 @@ module.exports = class extends Base {
     // get group count cache by group field where data
     const cacheData = await this._getCmtGroupByMailUserIdCache(
       options.group.join('_'),
-      where
+      where,
     );
+
+    if (!where._complex) {
+      if (cacheData.length) {
+        return cacheData;
+      }
+
+      const counts = await this.select(where, { field: options.group });
+      const countsMap = {};
+
+      for (const count of counts) {
+        const key = options.group
+          .map((item) => count[item] || undefined)
+          .join('_');
+
+        if (!countsMap[key]) {
+          countsMap[key] = {};
+
+          for (const field of options.group) {
+            countsMap[key][field] = count[field];
+          }
+          countsMap[key].count = 0;
+        }
+        countsMap[key].count += 1;
+      }
+
+      const ret = Object.values(countsMap);
+
+      // cache data
+      await this._setCmtGroupByMailUserIdCache(options.group.join('_'), ret);
+
+      return ret;
+    }
+
     const cacheDataMap = {};
 
-    for (let i = 0; i < cacheData.length; i++) {
+    for (const item of cacheData) {
       const key = options.group
-        .map((item) => cacheData[i][item] || undefined)
+        .map((item) => item[item] || undefined)
         .join('_');
 
-      cacheDataMap[key] = cacheData[i];
+      cacheDataMap[key] = item;
     }
 
     const counts = [];
@@ -286,14 +321,14 @@ module.exports = class extends Base {
         groupFlatValue[group] = undefined;
       });
 
-      for (let j = 0; j < where._complex[groupName][1].length; j++) {
+      for (const item of where._complex[groupName][1]) {
         const cacheKey = options.group
           .map(
             (item) =>
               ({
                 ...groupFlatValue,
-                [groupName]: where._complex[groupName][1][j],
-              }[item] || undefined)
+                [groupName]: item,
+              })[item] || undefined,
           )
           .join('_');
 
@@ -305,7 +340,7 @@ module.exports = class extends Base {
           ...where,
           ...groupFlatValue,
           _complex: undefined,
-          [groupName]: where._complex[groupName][1][j],
+          [groupName]: item,
         };
         const countPromise = this.count(groupWhere, {
           ...options,
@@ -313,7 +348,7 @@ module.exports = class extends Base {
         }).then((num) => {
           counts.push({
             ...groupFlatValue,
-            [groupName]: where._complex[groupName][1][j],
+            [groupName]: item,
             count: num,
           });
         });
@@ -331,7 +366,9 @@ module.exports = class extends Base {
 
   async add(
     data,
-    { access: { read = true, write = true } = { read: true, write: true } } = {}
+    {
+      access: { read = true, write = true } = { read: true, write: true },
+    } = {},
   ) {
     const Table = AV.Object.extend(this.tableName);
     const instance = new Table();
@@ -366,11 +403,18 @@ module.exports = class extends Base {
       ret.map(async (item) => {
         const _oldStatus = item.get('status');
 
-        if (think.isFunction(data)) {
-          item.set(data(item.toJSON()));
-        } else {
-          item.set(data);
+        const updateData =
+          typeof data === 'function' ? data(item.toJSON()) : data;
+
+        const REVERSED_KEYS = ['createdAt', 'updatedAt'];
+
+        for (const k in updateData) {
+          if (REVERSED_KEYS.includes(k)) {
+            continue;
+          }
+          item.set(k, updateData[k]);
         }
+
         const _newStatus = item.get('status');
 
         if (_newStatus && _oldStatus !== _newStatus) {
@@ -380,7 +424,7 @@ module.exports = class extends Base {
         const resp = await item.save();
 
         return resp.toJSON();
-      })
+      }),
     );
   }
 

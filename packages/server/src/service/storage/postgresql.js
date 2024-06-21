@@ -1,4 +1,4 @@
-const MySQL = require('./mysql');
+const MySQL = require('./mysql.js');
 
 module.exports = class extends MySQL {
   model(tableName) {
@@ -12,7 +12,7 @@ module.exports = class extends MySQL {
       lowerWhere[i.toLowerCase()] = where[i];
     }
 
-    if (options && options.desc) {
+    if (options?.desc) {
       options.desc = options.desc.toLowerCase();
     }
 
@@ -72,5 +72,13 @@ module.exports = class extends MySQL {
     }
 
     return result;
+  }
+
+  async setSeqId(id) {
+    const instance = this.model(this.tableName);
+
+    return instance.query(
+      `ALTER SEQUENCE ${instance.tableName}_seq RESTART WITH ${id};`,
+    );
   }
 };

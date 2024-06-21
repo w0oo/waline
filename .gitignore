@@ -31,5 +31,7 @@ dist/
 **/.vuepress/.temp/
 
 # editors
-.vscode/
 .idea/
+
+# npm config file
+.npmrc

@@ -1,4 +1,4 @@
-import { generateLocale } from './generate';
+import { generateLocale } from './generate.js';
 
 export default generateLocale([
   'NickName',
@@ -46,4 +46,8 @@ export default generateLocale([
   'Waiting',
   'Spam',
   'Unsticky',
+  'Oldest',
+  'Latest',
+  'Hottest',
+  'What do you think?',
 ]);

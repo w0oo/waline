@@ -1,18 +1,30 @@
-const qs = require('querystring');
-const { PasswordHash } = require('phpass');
-const BaseRest = require('./rest');
+const BaseRest = require('./rest.js');
 
 module.exports = class extends BaseRest {
   constructor(...args) {
     super(...args);
-    this.modelInstance = this.service(
-      `storage/${this.config('storage')}`,
-      'Users'
-    );
+    this.modelInstance = this.getModel('Users');
   }
 
   async getAction() {
-    const { page, pageSize } = this.get();
+    const { page, pageSize, email } = this.get();
+    const { userInfo } = this.ctx.state;
+
+    if (think.isEmpty(userInfo) || userInfo.type !== 'administrator') {
+      const users = await this.getUsersListByCount();
+
+      return this.success(users);
+    }
+
+    if (email) {
+      const user = await this.modelInstance.select({ email });
+
+      if (think.isEmpty(user)) {
+        return this.success();
+      }
+
+      return this.success(user[0]);
+    }
 
     const count = await this.modelInstance.count({});
     const users = await this.modelInstance.select(
@@ -21,7 +33,7 @@ module.exports = class extends BaseRest {
         desc: 'createdAt',
         limit: pageSize,
         offset: Math.max((page - 1) * pageSize, 0),
-      }
+      },
     );
 
     return this.success({
@@ -55,16 +67,16 @@ module.exports = class extends BaseRest {
       SMTP_USER,
       SITE_NAME,
     } = process.env;
-    const hasMailServie = SMTP_HOST || SMTP_SERVICE;
+    const hasMailService = SMTP_HOST || SMTP_SERVICE;
 
     const token = Array.from({ length: 4 }, () =>
-      Math.round(Math.random() * 9)
+      Math.round(Math.random() * 9),
     ).join('');
-    const normalType = hasMailServie
+    const normalType = hasMailService
       ? `verify:${token}:${Date.now() + 1 * 60 * 60 * 1000}`
       : 'guest';
 
-    data.password = new PasswordHash().hashPassword(data.password);
+    data.password = this.hashPassword(data.password);
     data.type = think.isEmpty(count) ? 'administrator' : normalType;
 
     if (think.isEmpty(resp)) {
@@ -78,11 +90,11 @@ module.exports = class extends BaseRest {
     }
 
     try {
-      const notify = this.service('notify');
+      const notify = this.service('notify', this);
       const apiUrl =
         this.ctx.serverURL +
         '/verification?' +
-        qs.stringify({ token, email: data.email });
+        new URLSearchParams({ token, email: data.email }).toString();
 
       await notify.transporter.sendMail({
         from:
@@ -95,7 +107,7 @@ module.exports = class extends BaseRest {
         }),
         html: this.locale(
           'Please click <a href="{{url}}">{{url}}<a/> to confirm registration, the link is valid for 1 hour. If you are not registering, please ignore this email.',
-          { url: apiUrl }
+          { url: apiUrl },
         ),
       });
     } catch (e) {
@@ -103,9 +115,9 @@ module.exports = class extends BaseRest {
 
       return this.fail(
         this.locale(
-          'Registeration confirm mail send failed, please {%- if isAdmin -%}check your mail configuration{%- else -%}check your email address and contact administrator{%- endif -%}.',
-          { isAdmin: think.isEmpty(count) }
-        )
+          'Registration confirm mail send failed, please {%- if isAdmin -%}check your mail configuration{%- else -%}check your email address and contact administrator{%- endif -%}.',
+          { isAdmin: think.isEmpty(count) },
+        ),
       );
     }
 
@@ -140,7 +152,7 @@ module.exports = class extends BaseRest {
     }
 
     if (password) {
-      updateData.password = new PasswordHash().hashPassword(password);
+      updateData.password = this.hashPassword(password);
     }
 
     if (think.isString(twoFactorAuth)) {
@@ -166,5 +178,104 @@ module.exports = class extends BaseRest {
     });
 
     return this.success();
+  }
+
+  async getUsersListByCount() {
+    const { pageSize } = this.get();
+    const commentModel = this.getModel('Comment');
+    const counts = await commentModel.count(
+      {
+        status: ['NOT IN', ['waiting', 'spam']],
+      },
+      {
+        group: ['user_id', 'mail'],
+      },
+    );
+
+    counts.sort((a, b) => b.count - a.count);
+    counts.length = Math.min(pageSize, counts.length);
+
+    const userIds = counts
+      .filter(({ user_id }) => user_id)
+      .map(({ user_id }) => user_id);
+
+    let usersMap = {};
+
+    if (userIds.length) {
+      const users = await this.modelInstance.select({
+        objectId: ['IN', userIds],
+      });
+
+      for (const user of users) {
+        usersMap[user.objectId] = users;
+      }
+    }
+
+    const users = [];
+    const { avatarProxy } = this.config();
+
+    for (const count of counts) {
+      const user = {
+        count: count.count,
+      };
+
+      if (think.isArray(this.config('levels'))) {
+        let level = 0;
+
+        if (user.count) {
+          const _level = think.findLastIndex(
+            this.config('levels'),
+            (l) => l <= user.count,
+          );
+
+          if (_level !== -1) {
+            level = _level;
+          }
+        }
+        user.level = level;
+      }
+
+      if (count.user_id && users[count.user_id]) {
+        const {
+          display_name: nick,
+          url: link,
+          avatar: avatarUrl,
+          label,
+        } = users[count.user_id];
+        const avatar =
+          avatarProxy && !avatarUrl.includes(avatarProxy)
+            ? avatarProxy + '?url=' + encodeURIComponent(avatarUrl)
+            : avatarUrl;
+
+        Object.assign(user, { nick, link, avatar, label });
+        users.push(user);
+        continue;
+      }
+
+      const comments = await commentModel.select(
+        { mail: count.mail },
+        { limit: 1 },
+      );
+
+      if (think.isEmpty(comments)) {
+        continue;
+      }
+      const comment = comments[0];
+
+      if (think.isEmpty(comment)) {
+        continue;
+      }
+      const { nick, link } = comment;
+      const avatarUrl = await think.service('avatar').stringify(comment);
+      const avatar =
+        avatarProxy && !avatarUrl.includes(avatarProxy)
+          ? avatarProxy + '?url=' + encodeURIComponent(avatarUrl)
+          : avatarUrl;
+
+      Object.assign(user, { nick, link, avatar });
+      users.push(user);
+    }
+
+    return users;
   }
 };

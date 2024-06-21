@@ -33,24 +33,34 @@ export default async function request(url, opts = {}) {
   }
 
   const joiner = opts.url.includes('?') ? '&' : '?';
+  const resp = await fetch(
+    `${baseUrl}${opts.url}${joiner}lang=${i18n.language}`,
+    opts,
+  );
 
-  return fetch(`${baseUrl}${opts.url}${joiner}lang=${i18n.language}`, opts)
-    .then((resp) => {
-      if (resp.ok) {
-        return resp.json();
-      }
+  if (!resp.ok) {
+    if (resp.status === 401) {
+      throw new Error(401);
+    }
 
-      if (resp.status === 401) {
-        throw new Error(401);
-      }
+    let result;
 
-      throw new Error(`${resp.status}: ${resp.statusText}`);
-    })
-    .then((resp) => {
-      if (resp.errno !== 0) {
-        throw new Error(resp.errmsg);
-      }
+    try {
+      result = await resp.json();
+    } catch (e) {
+      // ignore
+    }
 
-      return resp.data;
-    });
+    throw new Error(`${resp.status}: ${result?.errmsg || resp.statusText}`);
+  }
+
+  const result = await resp.json();
+
+  if (result.errno !== 0) {
+    throw new Error(result.errmsg);
+  }
+
+  const __version = resp.headers.get('x-waline-version');
+
+  return { __version, ...result.data };
 }

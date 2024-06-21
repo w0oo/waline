@@ -1,4 +1,4 @@
-import type { WalineLocale } from '../../typings';
+import type { WalineLocale } from '../../typings/index.js';
 
 const localeKeys = [
   'nick',
@@ -46,9 +46,13 @@ const localeKeys = [
   'waiting',
   'spam',
   'unsticky',
+  'oldest',
+  'latest',
+  'hottest',
+  'reactionTitle',
 ];
 
 export const generateLocale = (locale: string[]): WalineLocale =>
   Object.fromEntries(
-    locale.map((item, index) => [localeKeys[index], item])
+    locale.map((item, index) => [localeKeys[index], item]),
   ) as unknown as WalineLocale;

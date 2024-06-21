@@ -1,12 +1,15 @@
 import type {
-  WalineHighlighter,
+  WalineCommentSorting,
   WalineEmojiInfo,
+  WalineEmojiPresets,
+  WalineHighlighter,
   WalineImageUploader,
+  WalineLoginStatus,
   WalineMeta,
-  WalineTexRenderer,
   WalineSearchOptions,
-} from './base';
-import type { WalineLocale } from './locale';
+  WalineTeXRenderer,
+} from './base.js';
+import type { WalineLocale } from './locale.js';
 
 export interface WalineProps {
   /**
@@ -92,6 +95,8 @@ export interface WalineProps {
    * - `'ru'`
    * - `'ru-ru'`
    * - `'ru-RU'`
+   * - `'fr-FR'`
+   * - `'fr'`
    *
    * Display language for waline
    *
@@ -113,8 +118,10 @@ export interface WalineProps {
    * - `'ru'`
    * - `'ru-ru'`
    * - `'ru-RU'`
+   * - `'fr-FR'`
+   * - `'fr'`
    *
-   * @default 'zh-CN'
+   * @default navigator.language
    */
   lang?: string;
 
@@ -128,6 +135,15 @@ export interface WalineProps {
    * @see [I18n](https://waline.js.org/en/client/i18n.html)
    */
   locale?: Partial<WalineLocale>;
+
+  /**
+   * 评论列表排序方式
+   *
+   * Sorting method for comment list
+   *
+   * @default 'latest'
+   */
+  commentSorting?: WalineCommentSorting;
 
   /**
    * 是否启用暗黑模式适配
@@ -145,24 +161,28 @@ export interface WalineProps {
    *
    * Set Emojis
    *
-   * @default ['//unpkg.com/@waline/emojis@1.0.1/weibo']
+   * @default ['//unpkg.com/@waline/emojis@1.1.0/weibo']
    */
-  emoji?: (string | WalineEmojiInfo)[] | false;
+  emoji?: (WalineEmojiInfo | WalineEmojiPresets)[] | boolean;
 
   /**
    * 设置搜索功能
    *
    * Customize Search feature
+   *
+   * @default true
    */
-  search?: WalineSearchOptions | false;
+  search?: WalineSearchOptions | boolean;
 
   /**
    * 代码高亮
    *
    * Code highlighting
+   *
+   * @default true
    */
 
-  highlighter?: WalineHighlighter | false;
+  highlighter?: WalineHighlighter | boolean;
 
   /**
    * 自定义图片上传方法，方便更好的存储图片
@@ -172,16 +192,20 @@ export interface WalineProps {
    * Custom image upload callback to manage picture by yourself.
    *
    * We will pass a picture file object when execute it.
+   *
+   * @default true
    */
 
-  imageUploader?: WalineImageUploader | false;
+  imageUploader?: WalineImageUploader | boolean;
 
   /**
    * 自定义数学公式处理方法，用于预览。
    *
    * Custom math formula parse callback for preview.
+   *
+   * @default true
    */
-  texRenderer?: WalineTexRenderer | false;
+  texRenderer?: WalineTeXRenderer | boolean;
 
   /**
    *
@@ -194,12 +218,12 @@ export interface WalineProps {
    * Login mode status, optional values:
    *
    * - `'enable'`: enable login (default)
-   * - `'disable'`: Login is disabled, users should fill in infomation to comment
+   * - `'disable'`: Login is disabled, users should fill in information to comment
    * - `'force'`: Forced login, users must login to comment
    *
    * @default 'enable'
    */
-  login?: 'enable' | 'disable' | 'force';
+  login?: WalineLoginStatus;
 
   /**
    * 是否在页脚展示版权信息
@@ -213,4 +237,19 @@ export interface WalineProps {
    * @default true
    */
   copyright?: boolean;
+
+  /**
+   * recaptcha v3 client key
+   */
+  recaptchaV3Key?: string;
+
+  /**
+   * turnstile client key
+   */
+  turnstileKey?: string;
+
+  /**
+   * reaction
+   */
+  reaction?: string[] | boolean;
 }

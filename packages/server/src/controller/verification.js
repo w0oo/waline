@@ -1,12 +1,9 @@
-const BaseRest = require('./rest');
+const BaseRest = require('./rest.js');
 
 module.exports = class extends BaseRest {
   constructor(...args) {
     super(...args);
-    this.modelInstance = this.service(
-      `storage/${this.config('storage')}`,
-      'Users'
-    );
+    this.modelInstance = this.getModel('Users');
   }
 
   async getAction() {
@@ -21,7 +18,7 @@ module.exports = class extends BaseRest {
     const match = user.type.match(/^verify:(\d{4}):(\d+)$/i);
 
     if (!match) {
-      return this.fail(this.locale('USER_REGISTED'));
+      return this.fail(this.locale('USER_REGISTERED'));
     }
 
     if (token === match[1] && Date.now() < parseInt(match[2])) {

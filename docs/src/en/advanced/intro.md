@@ -1,6 +1,7 @@
 ---
 title: Intro
 icon: intro
+order: 1
 ---
 
 ::: info Waline
@@ -18,19 +19,20 @@ A simple comment system with backend support fork from [Valine](https://valine.j
 - Support for full markdown syntax
 - Simple and lightweight
 - Deploy free!
-- Multiple deploy and storage service support, at least 84 deploy style choice!
+- Multiple deploy and storage service support, at least 243 deploy style choice!
 
-|                                          | Waline                              |                                                   |
-| ---------------------------------------- | ----------------------------------- | ------------------------------------------------- |
-| **Client**                               | **Server**                          | **Storage**                                       |
-| [@waline/client](https://waline.js.org)  | [Vercel](https://vercel.com)        | [LeanCloud](https://leancloud.app)                |
-| [MiniValine](https://minivaline.js.org/) | [Deta](https://deta.sh)             | [CloudBase](https://clodbase.net)                 |
-|                                          | [CloudBase](https://cloudbase.net/) | [MongoDB](https://mongodb.com)                    |
-|                                          | [Railway](https://railway.app)      | MySQL                                             |
-|                                          | [Render](https://render.com)        | SQLite                                            |
-|                                          | Docker                              | PostgreSQL                                        |
-|                                          | self host                           | [GitHub](https://github.com)                      |
-|                                          |                                     | [Deta Base](https://docs.deta.sh/docs/base/about) |
+|                                                 | Waline                              |                                                              |
+| ----------------------------------------------- | ----------------------------------- | ------------------------------------------------------------ |
+| **Client**                                      | **Server**                          | **Storage**                                                  |
+| [@waline/client](https://waline.js.org)         | [Vercel](https://vercel.com)        | [LeanCloud](https://leancloud.app)                           |
+| [MiniValine](https://minivaline.js.org/)        | [Deta](https://deta.space)          | [CloudBase](https://cloudbase.net)                           |
+| [sodesu](https://github.com/BeiyanYunyi/sodesu) | [CloudBase](https://cloudbase.net/) | [MongoDB](https://mongodb.com)                               |
+|                                                 | [Railway](https://railway.app)      | MySQL                                                        |
+|                                                 | [Render](https://render.com)        | SQLite                                                       |
+|                                                 | [Zeabur](https://zeabur.com)        | PostgreSQL                                                   |
+|                                                 | [Netlify](https://netlify.com)      | [GitHub](https://github.com)                                 |
+|                                                 | Docker                              | [Deta Base](https://deta.space/docs/en/reference/base/about) |
+|                                                 | self host                           | [TiDB](https://tidbcloud.com/)                               |
 
 ## Todo
 
@@ -38,10 +40,12 @@ A simple comment system with backend support fork from [Valine](https://valine.j
 - [x] Wechat notification
 - [x] Telegram notification
 - [x] Akismet
-- [x] Article counter
 - [x] i18n
 - [x] Custom language
+- [x] Pageviews
+- [x] Article reaction
 - [x] Login support
+- [x] User label
 - [x] Comment management
 - [x] Support delete comment
 - [x] More database support
@@ -51,7 +55,7 @@ A simple comment system with backend support fork from [Valine](https://valine.j
 - [x] Duplicate content check
 - [x] CloudBase deploy support
 - [x] Social account login
-- [x] Sitcky Comment
+- [x] Sticky Comment
 - [x] Comment Like
 - [ ] AWS, GCP, Azure deploy support
 

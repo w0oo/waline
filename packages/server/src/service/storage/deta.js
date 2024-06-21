@@ -1,6 +1,8 @@
-const { Deta } = require('deta');
 const { performance } = require('perf_hooks');
-const Base = require('./base');
+
+const { Deta } = require('deta');
+
+const Base = require('./base.js');
 
 module.exports = class extends Base {
   constructor(tableName) {
@@ -47,7 +49,7 @@ module.exports = class extends Base {
     return (lastKey - Math.round(Math.random() * 100)).toString();
   }
 
-  where(where) {
+  parseWhere(where) {
     if (think.isEmpty(where)) {
       return;
     }
@@ -122,14 +124,37 @@ module.exports = class extends Base {
     return this.complex(conditions, _isArrayKeys);
   }
 
+  where(where) {
+    const filter = this.parseWhere(where);
+
+    if (!where._complex) {
+      return filter;
+    }
+
+    const filters = [];
+
+    for (const k in where._complex) {
+      if (k === '_logic') {
+        continue;
+      }
+      filters.push({
+        ...this.parseWhere({ [k]: where._complex[k] }),
+        ...filter,
+      });
+    }
+
+    // just support OR logic for deta
+    return filters;
+  }
+
   async select(where, { limit, offset, field } = {}) {
     const conditions = this.where(where);
 
     if (think.isArray(conditions)) {
       return Promise.all(
         conditions.map((condition) =>
-          this.select(condition, { limit, offset, field })
-        )
+          this.select(condition, { limit, offset, field }),
+        ),
       ).then((data) => data.flat());
     }
 
@@ -205,7 +230,7 @@ module.exports = class extends Base {
 
       if (think.isArray(conditions)) {
         return Promise.all(
-          conditions.map((condition) => this.count(condition))
+          conditions.map((condition) => this.count(condition)),
         ).then((counts) => counts.reduce((a, b) => a + b, 0));
       }
 
@@ -229,18 +254,18 @@ module.exports = class extends Base {
         groupFlatValue[group] = null;
       });
 
-      for (let j = 0; j < where._complex[groupName][1].length; j++) {
+      for (const item of where._complex[groupName][1]) {
         const groupWhere = {
           ...where,
           ...groupFlatValue,
           _complex: undefined,
-          [groupName]: where._complex[groupName][1][j],
+          [groupName]: item,
         };
         const num = await this.count(groupWhere);
 
         counts.push({
           ...groupFlatValue,
-          [groupName]: where._complex[groupName][1][j],
+          [groupName]: item,
           count: num,
         });
       }
@@ -270,7 +295,7 @@ module.exports = class extends Base {
         await this.instance.put(nextData, item.objectId);
 
         return nextData;
-      })
+      }),
     );
   }
 
@@ -278,7 +303,7 @@ module.exports = class extends Base {
     const items = await this.select(where);
 
     return Promise.all(
-      items.map(({ objectId }) => this.instance.delete(objectId))
+      items.map(({ objectId }) => this.instance.delete(objectId)),
     );
   }
 };

@@ -1,1 +1,2 @@
-export * from './recentComments';
+export * from './recentComments.js';
+export * from './userList.js';

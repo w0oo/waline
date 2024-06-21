@@ -1,15 +1,10 @@
 const jwt = require('jsonwebtoken');
 const fetch = require('node-fetch');
-const { PasswordHash } = require('phpass');
-const qs = require('querystring');
 
 module.exports = class extends think.Controller {
   constructor(ctx) {
     super(ctx);
-    this.modelInstance = this.service(
-      `storage/${this.config('storage')}`,
-      'Users'
-    );
+    this.modelInstance = this.getModel('Users');
   }
 
   async indexAction() {
@@ -21,16 +16,16 @@ module.exports = class extends think.Controller {
 
     if (!hasCode) {
       const { serverURL } = this.ctx;
-      const redirectUrl = `${serverURL}/oauth?${qs.stringify({
+      const redirectUrl = `${serverURL}/api/oauth?${new URLSearchParams({
         redirect,
         type,
-      })}`;
+      }).toString()}`;
 
       return this.redirect(
-        `${oauthUrl}/${type}?${qs.stringify({
+        `${oauthUrl}/${type}?${new URLSearchParams({
           redirect: redirectUrl,
-          state: this.ctx.state.token,
-        })}`
+          state: this.ctx.state.token || '',
+        }).toString()}`,
       );
     }
 
@@ -41,25 +36,28 @@ module.exports = class extends think.Controller {
 
     if (type === 'facebook') {
       const { serverURL } = this.ctx;
-      const redirectUrl = `${serverURL}/oauth?${qs.stringify({
+      const redirectUrl = `${serverURL}/api/oauth?${new URLSearchParams({
         redirect,
         type,
-      })}`;
+      }).toString()}`;
 
-      params.state = qs.stringify({
+      params.state = new URLSearchParams({
         redirect: redirectUrl,
         state: this.ctx.state.token || '',
       });
     }
 
-    const user = await fetch(`${oauthUrl}/${type}?${qs.stringify(params)}`, {
-      method: 'GET',
-      headers: {
-        'user-agent': '@waline',
+    const user = await fetch(
+      `${oauthUrl}/${type}?${new URLSearchParams(params).toString()}`,
+      {
+        method: 'GET',
+        headers: {
+          'user-agent': '@waline',
+        },
       },
-    }).then((resp) => resp.json());
+    ).then((resp) => resp.json());
 
-    if (!user || !user.id) {
+    if (!user?.id) {
       return this.fail(user);
     }
 
@@ -70,7 +68,7 @@ module.exports = class extends think.Controller {
 
       if (redirect) {
         return this.redirect(
-          redirect + (redirect.includes('?') ? '&' : '?') + 'token=' + token
+          redirect + (redirect.includes('?') ? '&' : '?') + 'token=' + token,
         );
       }
 
@@ -107,7 +105,7 @@ module.exports = class extends think.Controller {
         url: user.url,
         avatar: user.avatar,
         [type]: user.id,
-        password: new PasswordHash().hashPassword(Math.random()),
+        password: this.hashPassword(Math.random()),
         type: think.isEmpty(count) ? 'administrator' : 'guest',
       };
 
@@ -125,7 +123,7 @@ module.exports = class extends think.Controller {
 
     if (redirect) {
       return this.redirect(
-        redirect + (redirect.includes('?') ? '&' : '?') + 'token=' + token
+        redirect + (redirect.includes('?') ? '&' : '?') + 'token=' + token,
       );
     }
 
